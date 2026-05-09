@@ -116,6 +116,10 @@
       color: white;
       text-decoration: none;
       transition: var(--transition);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: inherit;
     }
     .fab-btn svg { width: 28px; height: 28px; }
     .fab-btn:active { transform: scale(0.9); }
@@ -690,10 +694,10 @@
 </header>
 
 <div class="fab-group">
-  <a href="#" class="fab-btn fab-order" onclick="openOrderModal(event)" aria-label="꽃 주문">
+  <button type="button" class="fab-btn fab-order" id="fabOrderBtn" aria-label="꽃 주문">
     <svg class="icon"><use href="#i-pencil"/></svg>
     <span class="fab-label">주문</span>
-  </a>
+  </button>
   <a href="sms:01023799607" class="fab-btn fab-sms" aria-label="문자 문의">
     <svg class="icon"><use href="#i-comment"/></svg>
   </a>
@@ -950,15 +954,42 @@
   let attachedFile = null;
 
   function openOrderModal(e) {
-    if (e) e.preventDefault();
-    document.getElementById('orderModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    if (e && e.preventDefault) e.preventDefault();
+    var modal = document.getElementById('orderModal');
+    if (modal) {
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    return false;
   }
 
   function closeOrderModal() {
-    document.getElementById('orderModal').classList.remove('open');
-    document.body.style.overflow = '';
+    var modal = document.getElementById('orderModal');
+    if (modal) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
   }
+
+  // 명시적 이벤트 리스너 (인라인 onclick보다 안정적)
+  function bindOrderButton() {
+    var btn = document.getElementById('fabOrderBtn');
+    if (btn) {
+      btn.addEventListener('click', openOrderModal, false);
+      btn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        openOrderModal(e);
+      }, false);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindOrderButton);
+  } else {
+    bindOrderButton();
+  }
+  // 글로벌 노출 (호환성)
+  window.openOrderModal = openOrderModal;
+  window.closeOrderModal = closeOrderModal;
 
   function handleFileSelect(e) {
     const file = e.target.files[0];
