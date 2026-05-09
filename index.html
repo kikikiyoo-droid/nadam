@@ -358,17 +358,20 @@
     }
     .footer-social svg { width: 22px; height: 22px; }
 
-    /* --- Reveal --- */
+    /* --- Reveal (CSS only - JS 없이 자동 페이드인) --- */
     .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: var(--transition);
-    }
-
-    .reveal.active {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
+      animation: gentleFadeIn 0.9s ease-out backwards;
     }
+    @keyframes gentleFadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* 섹션마다 살짝씩 딜레이 */
+    section:nth-of-type(2) .reveal { animation-delay: 0.1s; }
+    section:nth-of-type(3) .reveal { animation-delay: 0.2s; }
+    section:nth-of-type(4) .reveal { animation-delay: 0.3s; }
 
     /* --- Order FAB --- */
     .fab-order {
@@ -941,41 +944,7 @@
 </div>
 
 <script>
-  // ===== Reveal Animation (IntersectionObserver 방식) =====
-  function activateAll() {
-    document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
-  }
-
-  function initReveal() {
-    const reveals = document.querySelectorAll('.reveal');
-    if (!reveals.length) return;
-
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('active');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.05,
-        rootMargin: '0px 0px -20px 0px'
-      });
-      reveals.forEach(el => observer.observe(el));
-    } else {
-      activateAll();
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initReveal);
-  } else {
-    initReveal();
-  }
-
-  // 안전망: 2초 후에도 보이지 않는 요소가 있으면 강제 표시
-  setTimeout(activateAll, 2000);
+  // ===== Reveal: CSS animation으로 처리됨, JS 불필요 =====
 
   // ===== Order Modal Logic =====
   let attachedFile = null;
