@@ -619,6 +619,12 @@
 
   </style>
 
+<noscript>
+  <style>
+    .reveal { opacity: 1 !important; transform: none !important; }
+  </style>
+</noscript>
+
 </head>
 <body>
 
@@ -935,19 +941,41 @@
 </div>
 
 <script>
-  const handleReveal = () => {
-    const reveals = document.querySelectorAll('.reveal');
-    reveals.forEach(el => {
-      const windowHeight = window.innerHeight;
-      const elementTop = el.getBoundingClientRect().top;
-      const elementVisible = 100;
-      if (elementTop < windowHeight - elementVisible) {
-        el.classList.add('active');
-      }
-    });
+  // ===== Reveal Animation (IntersectionObserver 방식) =====
+  function activateAll() {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
   }
-  window.addEventListener('scroll', handleReveal);
-  window.onload = handleReveal;
+
+  function initReveal() {
+    const reveals = document.querySelectorAll('.reveal');
+    if (!reveals.length) return;
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.05,
+        rootMargin: '0px 0px -20px 0px'
+      });
+      reveals.forEach(el => observer.observe(el));
+    } else {
+      activateAll();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initReveal);
+  } else {
+    initReveal();
+  }
+
+  // 안전망: 2초 후에도 보이지 않는 요소가 있으면 강제 표시
+  setTimeout(activateAll, 2000);
 
   // ===== Order Modal Logic =====
   let attachedFile = null;
